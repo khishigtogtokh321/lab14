@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.*;
 
 import sict.edu.mn.lab12.model.User;
 import sict.edu.mn.lab12.service.UserService;
+import sict.edu.mn.lab12.config.JwtUtil;
+import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api")
@@ -19,6 +22,9 @@ public class AuthController {
 	@Autowired
 	private AuthenticationManager authenticationManager;
 
+	@Autowired
+	private JwtUtil jwtUtil;
+
 	@PostMapping("/register")
 	public ResponseEntity<User> register(@RequestBody RegisterRequest request) {
 		User user = userService.registerUser(request.getUsername(), request.getPassword(), "USER");
@@ -26,11 +32,14 @@ public class AuthController {
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<String> login(@RequestBody LoginRequest request) {
+	public ResponseEntity<?> login(@RequestBody LoginRequest request) {
 		Authentication auth = authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 		if (auth.isAuthenticated()) {
-			return ResponseEntity.ok("Login successful");
+			String token = jwtUtil.generateToken(request.getUsername());
+			Map<String, String> response = new HashMap<>();
+			response.put("token", token);
+			return ResponseEntity.ok(response);
 		}
 		return ResponseEntity.status(401).body("Login failed");
 	}

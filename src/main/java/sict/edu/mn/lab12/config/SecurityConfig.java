@@ -13,7 +13,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import sict.edu.mn.lab12.service.UserService;
 import sict.edu.mn.lab12.model.User;
-import org.springframework.http.HttpMethod;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 
 @Configuration
@@ -21,6 +23,9 @@ import java.util.Arrays;
 public class SecurityConfig {
 	@Autowired
 	private UserService userService;
+
+	@Autowired
+	private JwtAuthenticationFilter jwtRequestFilter;
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -33,10 +38,21 @@ public class SecurityConfig {
 					return config;
 				}))
 				.csrf(csrf -> csrf.disable())
+				.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
+				.anonymous(anonymous -> anonymous.disable())
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers("/api/register", "/api/login").permitAll()
-						.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/products/**").permitAll()
-						.anyRequest().authenticated());
+						.requestMatchers("/h2-console/**").permitAll()
+						.anyRequest().authenticated())
+				.exceptionHandling(ex -> ex
+						.authenticationEntryPoint((request, response, authException) -> {
+							response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+							response.setContentType("application/json");
+							response.getWriter().write("{\"error\": \"Unauthorized. JWT token is required.\"}");
+						}))
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+		
+		http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 		return http.build();
 	}
 

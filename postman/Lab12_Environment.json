@@ -1,0 +1,24 @@
+{
+	"id": "e2a27b87-43c7-4328-98e3-0c4a4a169b05",
+	"name": "Lab12 Local Environment",
+	"values": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "productId",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "randomPrice",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		}
+	]
+}

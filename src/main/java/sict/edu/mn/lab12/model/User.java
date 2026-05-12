@@ -15,8 +15,8 @@ public class User {
 	private Long id;
 
 	private String username;
-	private String password; // Store hashed password
-	private String role; // e.g., "USER", "ADMIN"
+	private String password; 
+	private String role; 
 
 	// Getters and setters
 	public Long getId() {
